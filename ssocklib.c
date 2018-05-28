@@ -11,8 +11,6 @@
  *
  */
 
-/* you can define DEBUG up here if you want to print out more verbose information and error details */
-
 #ifdef DEBUG
 #include <stdio.h>
 #endif
@@ -71,7 +69,6 @@ int CloseSocket(int sockfd)
     return (retval);
 }
 
-
 /*
  * bind a socket to a port
  *
@@ -105,7 +102,7 @@ int BindSocket(int sockfd, int port)
 /*
  * accept a connection on a socket
  *
- * (this call blocks if there are now connections waiting)
+ * (this call blocks if there are no connections waiting)
  *
  */
 int AcceptSocket(int sockfd)
@@ -159,7 +156,6 @@ int ListenSocket(int sockfd, int maxq)
     return (retval);
 }
 
-
 /*
  * connect to a socket at a host and port
  */
@@ -207,6 +203,59 @@ int ConnectSocket(int sockfd, char *host_name, int port)
 #endif
 
     return (retval);
+}
+
+/*
+ * sends a message over a socket
+ *
+ * Ignores flgas parameter of native send() function.
+ *
+ */
+int SendSocket(int sockfd, char *buffer, int buffer_sz)
+{
+    int n;
+
+#ifdef DEBUG
+    fprintf(stderr,"%s : SendSocket(%d, 0x%08x, %d) sending...",__FILE__, sockfd, buffer, buffer_sz);
+#endif
+
+    n = send(sockfd, (const void *) buffer, (size_t) buffer_sz, 0x0);
+
+#ifdef DEBUG
+    if (n < 0) {
+        fprintf(stderr,"ERROR : %s : socket send(%d, 0x%08x, %d) failed. errno = %d\n",
+		__FILE__, sockfd, buffer, buffer_sz, errno);
+    } else {
+        fprintf(stderr,"success! sent %d bytes\n",n);
+    }
+#endif
+
+    return (n);
+}
+
+/*
+ * receive message from sockfd, fills buffer
+ */
+int RecvSocket(int sockfd, char *buffer, int buffer_sz)
+{
+    int n;
+
+#ifdef DEBUG
+    fprintf(stderr,"%s : RecvSocket(%d, 0x%08x, %d) receiving...",__FILE__, sockfd, buffer, buffer_sz);
+#endif
+
+    n = recv(sockfd, (void *) buffer, (size_t) buffer_sz, 0x0);
+
+#ifdef DEBUG
+    if (n < 0) {
+        fprintf(stderr,"ERROR : %s : socket recv(%d, 0x%08x, %d) failed. errno = %d\n",
+		__FILE__, sockfd, buffer, buffer_sz, errno);
+    } else {
+        fprintf(stderr,"success! received %d bytes\n",n);
+    }
+#endif
+
+    return (n);
 }
 
 /*

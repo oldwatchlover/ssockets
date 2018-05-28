@@ -130,7 +130,7 @@
  * Returns -1 if it fails, errno remains set.
  *
  */
-int CreateSocket(void);
+extern int CreateSocket(void);
 
 /*
  * Close a socket.
@@ -140,7 +140,7 @@ int CreateSocket(void);
  * Returns 0 if successful otherwise will return -1 and errno remains set.
  *
  */
-int CloseSocket(int fd);
+extern int CloseSocket(int fd);
 
 /*
  * Bind a name to a socket.
@@ -152,7 +152,7 @@ int CloseSocket(int fd);
  * Returns 0 if successful, otherwise will return -1 and errno remains set.
  *
  */
-int BindSocket(int sockfd, int port);
+extern int BindSocket(int sockfd, int port);
 
 /*
  * Accept a connection on a socket.
@@ -163,7 +163,7 @@ int BindSocket(int sockfd, int port);
  * for the socket. If it fails, it returns -1 and errno remains set.
  *
  */
-int AcceptSocket(int sockfd);
+extern int AcceptSocket(int sockfd);
 
 /*
  * Listen for connections on a socket.
@@ -175,7 +175,7 @@ int AcceptSocket(int sockfd);
  * an error indication of ECONNREFUSED (see errno).
  *
  */
-int ListenSocket(int sockfd, int maxq);
+extern int ListenSocket(int sockfd, int maxq);
 
 /*
  * Initiate a connection on a socket.
@@ -185,7 +185,7 @@ int ListenSocket(int sockfd, int maxq);
  * If successful, 0 is returned. Otherwise -1 is returned and errno remains set.
  *
  */
-int ConnectSocket(int sockfd, char *serv_name, int port);
+extern int ConnectSocket(int sockfd, char *serv_name, int port);
 
 /*
  * Read from a socket
@@ -198,7 +198,7 @@ int ConnectSocket(int sockfd, char *serv_name, int port);
  * Up to buffer_sz bytes are read into buffer.
  *
  */
-int ReadSocket(int sockfd, char *buffer, int buffer_sz);
+extern int ReadSocket(int sockfd, char *buffer, int buffer_sz);
 
 /*
  * Write to a socket
@@ -209,7 +209,23 @@ int ReadSocket(int sockfd, char *buffer, int buffer_sz);
  * Writes up to buffer_sz bytes from buffer to the socket sockfd.
  *
  */
-int WriteSocket(int sockfd, char *buffer, int buffer_sz);
+extern int WriteSocket(int sockfd, char *buffer, int buffer_sz);
+
+/*
+ * Send a message to a socket
+ *
+ * A wrapper around native send() call, it ignores flags (sends 0x0)
+ *
+ */
+extern int SendSocket(int sockfd, char *buffer, int buffer_sz);
+
+/*
+ * Receive a message on a socket
+ *
+ * A wrapper around native recv() call, it ignores flags (sends 0x0)
+ *
+ */
+extern int RecvSocket(int sockfd, char *buffer, int buffer_sz);
 
 #endif /* __SSOCKLIB_H__ */
 

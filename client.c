@@ -14,30 +14,34 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <strings.h>
+#include <errno.h>
+
 #include "ssocklib.h"
 
 #define BUFFER_SIZE	(256)
 
 int main(int argc, char *argv[])
 {
-    char	server_host[BUFFER_SIZE], line[BUFFER_SIZE], buffer[BUFFER_SIZE], *s;
+    char	server_host[BUFFER_SIZE], line[BUFFER_SIZE], *s;
     int		port, sockfd, n;
-    size_t	buffsize;
 
     if (argc < 2) {
 	fprintf(stderr,"usage: %s server port\n",argv[0]);
-	exit (-1);
+	exit (EXIT_FAILURE);
     }
 
 	/* template code, this program has no command line arguments yet... */
     while (--argc > 0 && (*++argv)[0] == '-') {
         int	c;
-	while (c = *++argv[0]) {
+	while ((c = (*++argv)[0])) {
 	    switch (c) {
 		case 'h':
 		case 'u':
 		    fprintf(stderr,"usage: client host port\n");
-		    exit (1);
+		    exit (EXIT_SUCCESS);
 		    break;
 		default:
 		    fprintf(stderr,"unknown option [%c]\n",c);
@@ -52,39 +56,40 @@ int main(int argc, char *argv[])
 
     fprintf(stderr,"client connecting to [%s] port [%d]\n",server_host, port);
 
-	/* loop forever, reading stdin and sending it over the socket to the server */
-    while (1) {
+    sockfd = CreateSocket();
+    if (sockfd < 0) {
+        fprintf(stderr,"ERROR : %s : error creating socket errno = %d.\n",__FILE__,errno);
+	exit (EXIT_FAILURE);
+    }
 
-	if (s = fgets(line, BUFFER_SIZE, stdin) == NULL) {
+    if (ConnectSocket(sockfd, server_host, port) < 0) {
+        fprintf(stderr,"ERROR : %s : error connecting to socket [%s:%d] errno = %d.\n",
+		__FILE__,server_host,port,errno);
+	exit (EXIT_FAILURE);
+    }
+
+    while (true) {
+	if ((s = fgets(line, BUFFER_SIZE, stdin)) == NULL) {
 	    break;	/* user typed control-D to end the input */
 	}
 
-        sockfd = CreateSocket();
-        if (sockfd < 0) {
-	    fprintf(stderr,"ERROR : error creating socket.\n");
-	    exit (-1);
-        }
-
-        if (ConnectSocket(sockfd, server_host, port) < 0) {
-	    fprintf(stderr,"ERROR : error connecting to socket [%s:%d].\n",server_host,port);
-	    exit (-1);
-        }
-
 	line[strlen(line)-1] = '\0';	/* remove the newline from the input */
 
-        n = WriteSocket(sockfd, line, strlen(line));
+        n = SendSocket(sockfd, line, strlen(line));
         if (n < 0) {
-	    fprintf(stderr,"ERROR : error writing [%s] to socket [%d]\n",line,sockfd);
-   	    exit (-1); 
+	    fprintf(stderr,"ERROR : %s : error writing [%s] to socket [%d]\n",
+		__FILE__,line,sockfd,errno);
+	    exit (EXIT_FAILURE);
         }
-
-        n = CloseSocket(sockfd);
-	if (n < 0) {
-	    fprintf(stderr,"ERROR : error closing socket [%d]\n",sockfd);
-	    exit(-1);
-	}
     }
 
-    exit (1); /* success! */
+    n = CloseSocket(sockfd);
+    if (n < 0) {
+	fprintf(stderr,"ERROR : %s : error closing socket [%d] errno = %d\n",
+		__FILE__,sockfd,errno);
+	exit (EXIT_FAILURE);
+    }
+
+    exit (EXIT_SUCCESS);
 }
 
