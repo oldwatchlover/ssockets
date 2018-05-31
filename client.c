@@ -16,7 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <strings.h>
+#include <string.h>
 #include <errno.h>
 
 #include "ssocklib.h"
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 
         n = SendSocket(sockfd, line, strlen(line));
         if (n < 0) {
-	    fprintf(stderr,"ERROR : %s : error writing [%s] to socket [%d]\n",
+	    fprintf(stderr,"ERROR : %s : error writing [%s] to socket [%d] errno = %d\n",
 		__FILE__,line,sockfd,errno);
 	    exit (EXIT_FAILURE);
         }
